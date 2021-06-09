@@ -7,6 +7,10 @@ It also provides a platform to lock an endpoint in the event it is lost or stole
 The final product aims to feel as seamless to users as macOS FileVault or Windows 10 Bitlocker.
 This script is designed to be deployed via Automox and utilizes the Automox API for encryption key backups and rotations. However, it should be able to be re-factored to support any other Linux configuration management system.
 
+High-level conceptual diagram:
+<img src="./media/automox_linux_open_source_diagram.png" size="750">
+
+
 ## Components used:
 - [LUKS (Linux Encryption Standard)](https://gitlab.com/cryptsetup/cryptsetup/)
 - [Clevis (Handles encryption implementation across different Linux distributions)](https://github.com/latchset/clevis)
