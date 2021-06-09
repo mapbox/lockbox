@@ -1,5 +1,5 @@
 Note: Much of this readme content can also be found from within the script header itself. 
-This project is licensed using a 3-Clause BSD License (found at the top of the script file).
+This project is licensed using a 3-Clause BSD License (found at the top of the script file and as a separate license file).
 
 ## Purpose of this script:
 This script was developed by [Mapbox](https://www.mapbox.com/) IT in order to have a single script to implement, backup, and rotate encryption keys for Linux endpoints.
