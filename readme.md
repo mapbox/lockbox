@@ -1,5 +1,5 @@
 Note: Much of this readme content can also be found from within the script header itself. 
-This project is licensed using a 3-Clause BSD License (found at the top of the script file)
+This project is licensed using a 3-Clause BSD License (found at the top of the script file).
 
 ## Purpose of this script:
 This script was developed by [Mapbox](https://www.mapbox.com/) IT in order to have a single script to implement, backup, and rotate encryption keys for Linux endpoints.
@@ -36,7 +36,7 @@ This script assumes you have your api credentials and encryption passphrase encr
 #.psphrsencstring (Encryption passphrase string used to decrypt the encryption passphrase key)
 #.psphrskey (Encryption passphrase key - encrypted)
 
-### Example of how to encrypt credentials for your hidden file dependencies:
+### Example of one way of how to encrypt credentials for your hidden file dependencies:
 echo 'encryption_password_used_during_OS_installation' | openssl enc -base64 -aes-256-cbc -pbkdf2 -salt -pass pass:encryption_signing_password
 
 ## High level concept of the script:
