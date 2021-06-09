@@ -5,6 +5,7 @@ This project is licensed using a 3-Clause BSD License (found at the top of the s
 This script was developed by [Mapbox](https://www.mapbox.com/) IT in order to have a single script to implement, backup, and rotate encryption keys for Linux endpoints.
 It also provides a platform to lock an endpoint in the event it is lost or stolen.
 The final product aims to feel as seamless to users as macOS FileVault or Windows 10 Bitlocker.
+This script is designed to be deployed via Automox and utilizes the Automox API for encryption key backups and rotations. However, it should be able to be re-factored to support any other Linux configuration management system.
 
 ## Components used:
 - [LUKS (Linux Encryption Standard)](https://gitlab.com/cryptsetup/cryptsetup/)
@@ -12,10 +13,16 @@ The final product aims to feel as seamless to users as macOS FileVault or Window
 - [Automox (Endpoint Configuration Tool - Where keys are backed up to and recalled from via the Automox API)](https://www.automox.com/)
 
 ## Requirements:
-You must encrypt your Linux volume using LUKS encryption _before_ running this script. This is normally done during the Ubuntu OS installer setup wizard.
-You must include 4 files as dependencies in your Automox encryption policy (listed below). These include your encryption passphrase key in an encrypted format, your API tokens, and your encrypted passphrase files that are used to decrypt these files.
-Provide the name of your default automox server group id in the variable " default_automox_server_group_id='' "
-This script is designed to be deployed via Automox and utilizes the Automox API for encryption key backups and rotations. However, it should be able to be re-factored to support any other Linux configuration management system.
+- You must encrypt your Linux volume using LUKS encryption _before_ running this script. This is normally done during the Ubuntu OS installer setup wizard.
+- You must include 4 files as dependencies in your Automox encryption policy (listed below). These include your encryption passphrase key in an encrypted format, your API tokens, and your encrypted passphrase files that are used to decrypt these files.
+- Provide the name of your default automox server group id in the variable " default_automox_server_group_id='' "
+- Your Automox policy will contain both evaluation code and remediation code. 
+The evaluation code should look something like the following so that it always triggers the remediation code:
+```
+#!/bin/bash
+
+exit 1
+```
 
 
 ### These files should be uploaded as dependencies into your automox policy. Doing this causes them to be stored in the same directory as the executing script once they are downloaded onto an endpoint
