@@ -63,7 +63,7 @@ After this script runs successfully, each subsequent reboot will cause the Lenov
 
 ## Tested on:
 Operating Systems:
-- Ubuntu 20.04
+- Ubuntu 20.04 LTS, Ubuntu 20.04.2 LTS
 Hardware:
   - Manufactuer:
     - Lenovo, Dell, Acer
