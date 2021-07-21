@@ -68,16 +68,18 @@ Hardware:
   - Manufactuer:
     - Lenovo, Dell, Acer
   - Models:
+    - Acer Predator PH317-52-78X1
+    - Dell XPS 9570
+    - Lenovo IdeaPad Duet 3
+    - Lenovo ThinkPad P1 20QT
     - Lenovo ThinkPad P15 Gen 1
     - Lenovo ThinkPad P53
-    - Lenovo IdeaPad Duet 3
     - Lenovo ThinkPad T14 Gen 1
-    - Lenovo V530-24ICB AIO
     - Lenovo ThinkPad T15 Gen 1
-    - Dell XPS 9570
-    - Acer Predator PH317-52-78X1
+    - Lenovo ThinkPad T15g Gen 1
+    - Lenovo ThinkStation P620
+    - Lenovo V530-24ICB AIO
     - Lenovo X1 20QD
-    - Lenovo P1 20QT
 
 # Other sources referenced:
 - [luks key information](https://www.thegeekstuff.com/2016/03/cryptsetup-lukskey/) 
