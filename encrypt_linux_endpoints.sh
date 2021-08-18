@@ -414,7 +414,7 @@ key_to_backup_file_first_line=$(head -n 1 ./key_to_backup)
 if [ $script_first_run_boolean = "true" ]; then
 
   echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" >>$combined_log_path
-  clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1"}' || exit 1
+  clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,4"}' || exit 1
   echo "Successfully wrote key to TPM using LUKS slot 3." >>$combined_log_path
 
   # add the key to be backed up to luks. exit this script if the command fails
@@ -433,7 +433,7 @@ else
   clevis luks unbind -d /dev/${luks_encrypted_volumes} -s 3 -f || exit 1
 
   echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" >>$combined_log_path
-  clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1"}' || exit 1
+  clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,4"}' || exit 1
 
   echo "Now that we've written a TPM key to LUKS, use this same backup key to rotate the previous Automox recovery key.." >>$combined_log_path
   echo "Rotate keyslot 2 with newly-generated organization encryption recovery key. Script will fail if unsuccessful.." >>$combined_log_path
