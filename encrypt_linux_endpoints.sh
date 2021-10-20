@@ -162,6 +162,56 @@ function upload_recovery_key_to_automox {
 }
 ############################################### END - Upload recovery key to Automox
 
+
+############################################### Overwrite_unused_keyslots 
+
+function overwrite_unused_keyslots {
+
+key_slot_numbers_to_check=(0 1 4 5 6 7)
+currently_occupied_keyslots=()
+
+jq '.[]' current_keyslots.json | while read object; do
+
+ echo "Evaluating keyslot:" &>> $combined_log_path
+ echo $object &>> $combined_log_path
+ found_key=` echo $object | jq -r `
+ echo "Found key:" &>> $combined_log_path
+ echo $found_key >> ./found_keyslots
+ echo $found_key &>> $combined_log_path
+done
+
+while read number; do
+  echo "$number"
+    currently_occupied_keyslots+=($number)
+done <found_keyslots
+
+echo "List of key slots that are currently occupied:" &>> $combined_log_path
+echo "${currently_occupied_keyslots[@]}" &>> $combined_log_path
+
+echo "Generating keys to overwrite unused keyslots.." &>> $combined_log_path
+
+# loop through each available keyslot and ensure it is already overwritten. if not, overwrite it
+for key_slot_number_to_check in "${key_slot_numbers_to_check[@]}"; do
+
+  echo "Ensuring keyslot number ${key_slot_number_to_check} is already occupied.." &>> $combined_log_path
+
+  # if the keyslot to check is not already occupied, push a placeholder key to it
+  # aka, if the list of currently occupied keyslots does not contain the current keyslot being checked, push a placeholder key to it
+  if [[ ! " ${currently_occupied_keyslots[*]} " =~ " ${key_slot_number_to_check} " ]]; then
+      echo "Empty LUKS keyslot found in LUKS key slot number ${key_slot_number_to_check}. Generating key for key slot: ${key_slot_number_to_check}" &>> $combined_log_path
+      cat /dev/urandom | tr -dc '[:alnum:]' | head -c 30 > ./slot_${key_slot_number_to_check}_overwrite_key
+      echo "Overwriting keyslot ${key_slot_number_to_check}.." &>> $combined_log_path
+      cryptsetup luksAddKey -S ${key_slot_number_to_check} --key-file ./key_to_backup /dev/${luks_encrypted_volumes} ./slot_${key_slot_number_to_check}_overwrite_key  &>> $combined_log_path || exit 1
+  else
+      echo "LUKS keyslot ${key_slot_number_to_check} already taken. Checking next keyslot (if any).." &>> $combined_log_path
+  fi
+
+done
+
+}
+
+############################################### END - Overwrite_unused_keyslots 
+
 ############################################### set_automox_recovery_key_to_current_passphrase_file
 function set_automox_recovery_key_to_current_passphrase_file {
   # First get the local computer name. this will be used to find this computer against all other automox computers
@@ -422,9 +472,12 @@ if [ $script_first_run_boolean = "true" ]; then
   cryptsetup luksAddKey -S 2 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./key_to_backup >>$combined_log_path || exit 1
   echo "Successfully wrote encryption recovery key to LUKS slot 2. Proceeding.. " >>$combined_log_path
 
-  echo "Now that we've written a TPM key to LUKS, use this same backup key to remove old non-Clevis keys from LUKS slot 0.." >>$combined_log_path
-  cryptsetup luksKillSlot /dev/${luks_encrypted_volumes} 0 --key-file ./key_to_backup || exit 1
-  echo "Successfully removed LUKS key from key slot 0 (Should be the key that was used during initial Linux OS installation.)" >>$combined_log_path
+  echo "Now that we've written a TPM key to LUKS, use this same backup key to remove old intial-setup keys from LUKS slot 0.." >> $combined_log_path
+  cat /dev/urandom | tr -dc '[:alnum:]' | head -c 30 > ./slot_0_overwrite_key
+
+  echo "Overwriting keyslot 0.." &>> $combined_log_path
+  cryptsetup luksChangeKey -S 0 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./slot_0_overwrite_key >> $combined_log_path || exit 1
+  echo "Successfully overwrote LUKS key slot 0 (Key that was used during initial Linux OS installation.)" >> $combined_log_path
 
 else
 
@@ -446,6 +499,10 @@ fi
 
 # now upload your recovery key to automox
 upload_recovery_key_to_automox
+
+# overwrite unsured keyslots so users cannot write their own keys into available LUKS keyslots
+echo "Overwriting unused keyslots.." &>> $combined_log_path
+overwrite_unused_keyslots
 
 # For debugging
 # echo "Double check that the key from the file matches the output of what you just stored in clevis:" >> $combined_log_path

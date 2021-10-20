@@ -93,3 +93,8 @@ LUKS Key Slot info (What key slot numbers are used through the script lifecycle)
 - Initial LUKS encryption key from OS setup (gets erased) - keyslot 0
 - Recovery key - keyslot 2
 - TPM - keyslot 3
+
+## Tamper protection:
+### Overwriting all available keyslots: Lockbox implements a function to check that keyslots 0,1,4,5,6,7 contain keys. This happens on first-runs and subsequent-runs of the script. This prevents a non-IT user from overwriting any keyslots with their own key.
+### Preventing a non-IT user from overwriting LUKS keyslots _before_ Lockbox is kicked off (after the initial OS setup): Any attempts to override keyslots with personal recovery keys will cause Lockbox to fail during execution.  
+
