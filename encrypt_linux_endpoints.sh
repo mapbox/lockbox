@@ -107,20 +107,20 @@ function upload_recovery_key_to_automox {
   ################################ CREATE RECOVERY KEY API UPLOAD URL
   # First get the local computer name. this will be used to find this computer against all other automox computers
   computer_name=$(hostname)
-  echo "Local hostname to look for in the returned list of Automox computers: ${computer_name}" >>$combined_log_path
+  echo "Local hostname to look for in the returned list of Automox computers: ${computer_name}" &>>$combined_log_path
 
   curl -s -X GET 'https://console.automox.com/api/servers' -H "Authorization: Bearer ${decrypted_credentials}" >all_servers_response.json
 
   jq -c '.[]' all_servers_response.json | while read object; do
-    echo "Comparing object names.." >>$combined_log_path
-    echo "Original computer name" >>$combined_log_path
-    echo $computer_name >>$combined_log_path
+    echo "Comparing object names.." &>>$combined_log_path
+    echo "Original computer name" &>>$combined_log_path
+    echo $computer_name &>>$combined_log_path
     name_to_check_against=$(echo $object | jq -r '.name')
-    echo "name to check against:" >>$combined_log_path
-    echo $name_to_check_against >>$combined_log_path
+    echo "name to check against:" &>>$combined_log_path
+    echo $name_to_check_against &>>$combined_log_path
 
     if [ $name_to_check_against = $computer_name ]; then
-      echo "Computer found!.." >>$combined_log_path
+      echo "Computer found!.." &>>$combined_log_path
       echo "$object" >selected_computer.json
       break
     fi
@@ -131,32 +131,32 @@ function upload_recovery_key_to_automox {
   # cat selected_computer.json
 
   organization_id=$(cat selected_computer.json | jq -r '.organization_id')
-  echo "Organization id:" >>$combined_log_path
-  echo $organization_id >>$combined_log_path
+  echo "Organization id:" &>>$combined_log_path
+  echo $organization_id &>>$combined_log_path
 
   serial_number_of_selected_device=$(cat selected_computer.json | jq -r '.serial_number')
-  echo "Serial number of selected device:" >>$combined_log_path
-  echo $serial_number_of_selected_device >>$combined_log_path
+  echo "Serial number of selected device:" &>>$combined_log_path
+  echo $serial_number_of_selected_device &>>$combined_log_path
 
   automox_id_of_selected_device=$(cat selected_computer.json | jq -r '.id')
-  echo "Automox id of selected device:" >>$combined_log_path
-  echo $automox_id_of_selected_device >>$combined_log_path
+  echo "Automox id of selected device:" &>>$combined_log_path
+  echo $automox_id_of_selected_device &>>$combined_log_path
 
   # now formulate the outgoing API call to back up this new LUKS key
   automox_api_update_url="https://console.automox.com/api/servers/${automox_id_of_selected_device}?o=${organization_id}"
 
-  echo "Automox server group id:" >>$combined_log_path
-  echo $default_automox_server_group_id >>$combined_log_path
-  echo "end automox server group id" >>$combined_log_path
+  echo "Automox server group id:" &>>$combined_log_path
+  echo $default_automox_server_group_id &>>$combined_log_path
+  echo "end automox server group id" &>>$combined_log_path
 
-  echo "Automox update url:" >>$combined_log_path
-  echo "${automox_api_update_url}" >>$combined_log_path
+  echo "Automox update url:" &>>$combined_log_path
+  echo "${automox_api_update_url}" &>>$combined_log_path
   ################################ END CREATE RECOVERY KEY API UPLOAD URL
 
   # Now that you have the encryption key to use, create the outgoing API body
   body="{\"server_group_id\": \"${default_automox_server_group_id}\", \"tags\": [ \"Organization_Encryption_Key: ${key_to_backup_file_first_line}\" ] }"
 
-  echo "Backing up the newly generated backup encryption key to automox.." >>$combined_log_path
+  echo "Backing up the newly generated backup encryption key to automox.." &>>$combined_log_path
   ## Upload encryption key to Automox as device tag for the machine that this script executes on. If this command fails (if backup unsuccessful), exit the script
   curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer ${decrypted_credentials}" -d "${body}" "${automox_api_update_url}" || exit 1
 }
@@ -176,7 +176,7 @@ jq '.[]' current_keyslots.json | while read object; do
  echo $object &>> $combined_log_path
  found_key=` echo $object | jq -r `
  echo "Found key:" &>> $combined_log_path
- echo $found_key >> ./found_keyslots
+ echo $found_key &>> ./found_keyslots
  echo $found_key &>> $combined_log_path
 done
 
@@ -217,45 +217,45 @@ function set_automox_recovery_key_to_current_passphrase_file {
   # First get the local computer name. this will be used to find this computer against all other automox computers
   computer_name=$(hostname)
 
-  echo "Local hostname to look for in the returned list of Automox computers: ${computer_name}" >>$combined_log_path
+  echo "Local hostname to look for in the returned list of Automox computers: ${computer_name}" &>>$combined_log_path
 
   curl -s -X GET 'https://console.automox.com/api/servers' -H "Authorization: Bearer ${decrypted_credentials}" >all_servers_response.json
 
   jq -c '.[]' all_servers_response.json | while read object; do
-    echo "Comparing object names.." >>$combined_log_path
-    echo "Original computer name" >>$combined_log_path
-    echo $computer_name >>$combined_log_path
+    echo "Comparing object names.." &>>$combined_log_path
+    echo "Original computer name" &>>$combined_log_path
+    echo $computer_name &>>$combined_log_path
     name_to_check_against=$(echo $object | jq -r '.name')
-    echo "name to check against:" >>$combined_log_path
-    echo $name_to_check_against >>$combined_log_path
+    echo "name to check against:" &>>$combined_log_path
+    echo $name_to_check_against &>>$combined_log_path
 
     if [ $name_to_check_against = $computer_name ]; then
-      echo "Computer found!.." >>$combined_log_path
-      # echo $object >> $combined_log_path
+      echo "Computer found!.." &>>$combined_log_path
+      # echo $object &>> $combined_log_path
       echo "$object" >selected_computer.json
       break
     fi
   done
 
   organization_id=$(cat selected_computer.json | jq -r '.organization_id')
-  echo "Organization id:" >>$combined_log_path
-  echo $organization_id >>$combined_log_path
+  echo "Organization id:" &>>$combined_log_path
+  echo $organization_id &>>$combined_log_path
 
   automox_id_of_selected_device=$(cat selected_computer.json | jq -r '.id')
-  echo "Automox id of selected device:" >>$combined_log_path
-  echo $automox_id_of_selected_device >>$combined_log_path
+  echo "Automox id of selected device:" &>>$combined_log_path
+  echo $automox_id_of_selected_device &>>$combined_log_path
 
   # now formulate the outgoing API call to back up this new LUKS key
   automox_api_retrieve_computer_details_url="https://console.automox.com/api/servers/${automox_id_of_selected_device}?o=${organization_id}"
 
-  echo "Automox server group id:" #>> $combined_log_path
-  echo $default_automox_server_group_id >>$combined_log_path
-  echo "end automox server group id" >>$combined_log_path
+  echo "Automox server group id:" #&>> $combined_log_path
+  echo $default_automox_server_group_id &>>$combined_log_path
+  echo "end automox server group id" &>>$combined_log_path
 
-  echo "Automox update url:" >>$combined_log_path
-  echo "${automox_api_retrieve_computer_details_url}" >>$combined_log_path
+  echo "Automox update url:" &>>$combined_log_path
+  echo "${automox_api_retrieve_computer_details_url}" &>>$combined_log_path
 
-  echo "Getting the specific device from automox.." >>$combined_log_path
+  echo "Getting the specific device from automox.." &>>$combined_log_path
 
   selected_computer_tags=$(cat selected_computer.json | jq .tags)
 
@@ -263,16 +263,16 @@ function set_automox_recovery_key_to_current_passphrase_file {
   tag_string_to_search_for='Organization_Encryption_Key'
 
   echo $selected_computer_tags | jq -c '.[]' | while read tag; do
-    echo "Comparing tag names.." >>$combined_log_path
-    echo "Tag string to search for:" >>$combined_log_path
-    echo $tag_string_to_search_for >>$combined_log_path
+    echo "Comparing tag names.." &>>$combined_log_path
+    echo "Tag string to search for:" &>>$combined_log_path
+    echo $tag_string_to_search_for &>>$combined_log_path
     #tag_to_check_against=` echo $tag `
-    # echo "checking against tag:" >> $combined_log_path
-    # echo $tag >> $combined_log_path
+    # echo "checking against tag:" &>> $combined_log_path
+    # echo $tag &>> $combined_log_path
 
     if [[ "$tag" == *"$tag_string_to_search_for"* ]]; then
-      echo "Encryption tag found!.." >>$combined_log_path
-      # echo $tag >> $combined_log_path
+      echo "Encryption tag found!.." &>>$combined_log_path
+      # echo $tag &>> $combined_log_path
       echo "$tag" | jq -r >selected_tag.json
       break
     fi
@@ -314,35 +314,35 @@ if [ ! -f $combined_log_path ]; then
 fi
 
 echo "Check log file: \"$combined_log_path\" for output"
-echo "Starting LUKS encryption-check script.." >>$combined_log_path
-echo "Date: $(date +"%Y-%b-%d %T")" >>$combined_log_path
+echo "Starting LUKS encryption-check script.." &>>$combined_log_path
+echo "Date: $(date +"%Y-%b-%d %T")" &>>$combined_log_path
 
 ############################################### END SETUP LOGGING
 
 ############################################### CHECK FOR LUKS ENCRYPTED VOLUME
-echo "First checking to find an encrypted volume. This currently only supports LUKS encryption methods The volume must ALREADY have been encrypted for this script to work.." >>$combined_log_path
+echo "First checking to find an encrypted volume. This currently only supports LUKS encryption methods The volume must ALREADY have been encrypted for this script to work.." &>>$combined_log_path
 
-echo “Finding name of encrypted volume..” >>$combined_log_path
+echo “Finding name of encrypted volume..” &>>$combined_log_path
 luks_encrypted_volumes=$(dmsetup ls | grep crypt | cut -f1 -d_)
 
 if [ -z "$luks_encrypted_volumes" ]; then
-  echo "Returned output: \"$luks_encrypted_volumes\"" >>$combined_log_path
-  echo "No LUKS-encrypted volume found. Exiting with an error code." >>$combined_log_path
+  echo "Returned output: \"$luks_encrypted_volumes\"" &>>$combined_log_path
+  echo "No LUKS-encrypted volume found. Exiting with an error code." &>>$combined_log_path
   exit 1
 else
-  echo "LUKS-encrypted volume(s) found! Proceeding.." >>$combined_log_path
-  echo "LUKS encrypted volume(s): \"$luks_encrypted_volumes\"" >>$combined_log_path
+  echo "LUKS-encrypted volume(s) found! Proceeding.." &>>$combined_log_path
+  echo "LUKS encrypted volume(s): \"$luks_encrypted_volumes\"" &>>$combined_log_path
 fi
 
 ############################################### END CHECK FOR LUKS ENCRYPTED VOLUME
 
 ############################################### GET UPDATES - INSTALL PACKAGES
 
-echo "Getting updates before installing tpm app.." >>$combined_log_path
-apt-get update >>$combined_log_path
+echo "Getting updates before installing tpm app.." &>>$combined_log_path
+apt-get update &>>$combined_log_path
 
-echo "Installing tpm2-tools, clevis libraries, curl, and JQ for JSON handling.." >>$combined_log_path
-apt -y install tpm2-tools clevis clevis-luks clevis-udisks2 clevis-tpm2 clevis-dracut clevis-initramfs jq curl >>$combined_log_path
+echo "Installing tpm2-tools, clevis libraries, curl, and JQ for JSON handling.." &>>$combined_log_path
+apt -y install tpm2-tools clevis clevis-luks clevis-udisks2 clevis-tpm2 clevis-dracut clevis-initramfs jq curl &>>$combined_log_path
 
 ############################################### END GET UPDATES - INSTALL PACKAGES
 
@@ -353,15 +353,15 @@ cryptsetup luksDump /dev/${luks_encrypted_volumes} --debug-json | tr -d '\n' | s
 cat luksInfo.json | jq -r '.keyslots' | jq 'keys' >current_keyslots.json
 
 jq '.[]' current_keyslots.json | while read object; do
-  echo "Evaluating keyslot number:" >>$combined_log_path
-  echo $object >>$combined_log_path
+  echo "Evaluating keyslot number:" &>>$combined_log_path
+  echo $object &>>$combined_log_path
   key_to_check_against=$(echo $object | jq -r)
   if [ $key_to_check_against = 0 ]; then
-    echo "Keyslot 0 found! Will run encryption initialization process. Proceeding to next steps.." >>$combined_log_path
+    echo "Keyslot 0 found! Will run encryption initialization process. Proceeding to next steps.." &>>$combined_log_path
     echo "true" >script_first_run
     break
   else
-    echo "Keyslot 0 not found yet.. Setting script_first_run file to false until found.. " >>$combined_log_path
+    echo "Keyslot 0 not found yet.. Setting script_first_run file to false until found.. " &>>$combined_log_path
     echo "false" >script_first_run
   fi
 done
@@ -379,14 +379,14 @@ decrypted_credentials=$(echo "${encrypted_string}" | openssl enc -base64 -aes-25
 ############################################### END RETRIEVE AND DECRYPT CREDENTIALS
 
 ############################################### API RESPONSE TEST
-echo "Testing api connection before proceeding by running a simple GET command to the automox api.." >>$combined_log_path
+echo "Testing api connection before proceeding by running a simple GET command to the automox api.." &>>$combined_log_path
 test_api_response=$(curl -o /dev/null -s -w "%{http_code}" 'https://console.automox.com/api/servers' -H "Authorization: Bearer ${decrypted_credentials}")
-echo "${test_api_response}" >>$combined_log_path
+echo "${test_api_response}" &>>$combined_log_path
 
 if [[ $test_api_response = 20* ]]; then
-  echo "contains success code!" >>$combined_log_path
+  echo "contains success code!" &>>$combined_log_path
 else
-  echo "error - does not contain success code. Exiting process." >>$combined_log_path
+  echo "error - does not contain success code. Exiting process." &>>$combined_log_path
   exit 1
 fi
 
@@ -399,13 +399,13 @@ script_first_run_boolean=$(cat script_first_run)
 
 if [ $script_first_run_boolean == "true" ]; then
   # run first-pass encryption steps
-  echo "LUKS keyslot 0 is occupied, meaning the encryption key the user set during OS installation still exists." >>$combined_log_path
-  echo "Running first-time encryption setup.. This process will wipe the encryption key from keyslot 0 and replace this with IT-generated keys." >>$combined_log_path
+  echo "LUKS keyslot 0 is occupied, meaning the encryption key the user set during OS installation still exists." &>>$combined_log_path
+  echo "Running first-time encryption setup.. This process will wipe the encryption key from keyslot 0 and replace this with IT-generated keys." &>>$combined_log_path
 
-  echo "Using initial-os-installation passphrase as current password to bind the TPM." >>$combined_log_path
+  echo "Using initial-os-installation passphrase as current password to bind the TPM." &>>$combined_log_path
 
   # decrypt the encrypted strings
-  echo "decrypting encryption passphrase.." >>$combined_log_path
+  echo "decrypting encryption passphrase.." &>>$combined_log_path
   # decrypted_passphrase=`echo "${passphrase_encrypted_string}" | openssl enc -base64 -aes-256-cbc -md md5 -pbkdf2 -salt -pass pass:$passphrase_signing_key -d`
   # INCLUDE A SPACE AFTER THE BACKTICK "`"
   # Do not separate the variable name and the "=" sign with a space
@@ -413,46 +413,46 @@ if [ $script_first_run_boolean == "true" ]; then
   decrypted_passphrase=$(cat .psphrsencstring | openssl enc -base64 -aes-256-cbc -pbkdf2 -salt -pass file:.psphrskey -d)
 
   # pass the decrypted string to the current_passphrase file
-  echo "Writing encryption passphrase to file.." >>$combined_log_path
-  printf "${decrypted_passphrase}" | tee current_passphrase # uncomment to debug the correct passphrase ending up in the current_passphrase file >> $combined_log_path
+  echo "Writing encryption passphrase to file.." &>>$combined_log_path
+  printf "${decrypted_passphrase}" | tee current_passphrase # uncomment to debug the correct passphrase ending up in the current_passphrase file &>> $combined_log_path
 
-  echo "Passphrase value to try and use:" >>$combined_log_path
-  echo $(cat ./current_passphrase) >>$combined_log_path
+  echo "Passphrase value to try and use:" &>>$combined_log_path
+  echo $(cat ./current_passphrase) &>>$combined_log_path
 
 else
-  echo "Running LUKS re-bind workflow" >>$combined_log_path
-  echo "Current passphrase is the automox api encryption tag value. retrieve it and set it as the current_passphrase file" >>$combined_log_path
+  echo "Running LUKS re-bind workflow" &>>$combined_log_path
+  echo "Current passphrase is the automox api encryption tag value. retrieve it and set it as the current_passphrase file" &>>$combined_log_path
   set_automox_recovery_key_to_current_passphrase_file
 fi
 
 # set correct permissions for current passphrase file
-chmod 400 current_passphrase >>$combined_log_path
+chmod 400 current_passphrase &>>$combined_log_path
 
 ############################################### END CHECK IF SCRIPT FIRST RUN
 
 ############################################### CREATE TPM ENCRYPTION KEY
-echo "Seeing if TPM 2.0 is enabled first.. If not, exit script with error message - NOT YET EXITING AS OF 10-15-20 - CJ" >>$combined_log_path
+echo "Seeing if TPM 2.0 is enabled first.. If not, exit script with error message - NOT YET EXITING AS OF 10-15-20 - CJ" &>>$combined_log_path
 tpm2_status=$(echo tpm2_nvdefine)
-echo "tpm 2 status:" >>$combined_log_path
-echo ${tpm2_status} >>$combined_log_path
+echo "tpm 2 status:" &>>$combined_log_path
+echo ${tpm2_status} &>>$combined_log_path
 
-echo "Clearing TPM first as a preliminary step.." >>$combined_log_path
-tpm2_clear >>$combined_log_path
+echo "Clearing TPM first as a preliminary step.." &>>$combined_log_path
+tpm2_clear &>>$combined_log_path
 
-echo "Generating alphanumeric random 64 character TPM key.." >>$combined_log_path
+echo "Generating alphanumeric random 64 character TPM key.." &>>$combined_log_path
 cat /dev/urandom | tr -dc '[:alnum:]' | head -c 64 >tpm_key
 
-echo "TPM key file generation complete. Proceeding.." >>$combined_log_path
+echo "TPM key file generation complete. Proceeding.." &>>$combined_log_path
 ############################################### END CREATE TPM ENCRYPTION KEY
 
 
 ############################################### BIND TPM ENCRYPTION KEY VIA CLEVIS
-echo "Using clevis to write tpm_key into the TPM as a clevis secret.." >>$combined_log_path
+echo "Using clevis to write tpm_key into the TPM as a clevis secret.." &>>$combined_log_path
 cat tpm_key | clevis encrypt tpm2 '{}' >clevis_secret.jwe
 
-echo "Binding the key now in your TPM to your LUKS encrypted volume" >>$combined_log_path
-echo "What the luks encrypted volume path should be:" >>$combined_log_path
-echo "/dev/${luks_encrypted_volumes}" >>$combined_log_path
+echo "Binding the key now in your TPM to your LUKS encrypted volume" &>>$combined_log_path
+echo "What the luks encrypted volume path should be:" &>>$combined_log_path
+echo "/dev/${luks_encrypted_volumes}" &>>$combined_log_path
 ############################################### END BIND TPM ENCRYPTION KEY VIA CLEVIS
 
 
@@ -463,35 +463,35 @@ key_to_backup_file_first_line=$(head -n 1 ./key_to_backup)
 
 if [ $script_first_run_boolean = "true" ]; then
 
-  echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" >>$combined_log_path
+  echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" &>>$combined_log_path
   clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,8"}' || exit 1
-  echo "Successfully wrote key to TPM using LUKS slot 3." >>$combined_log_path
+  echo "Successfully wrote key to TPM using LUKS slot 3." &>>$combined_log_path
 
   # add the key to be backed up to luks. exit this script if the command fails
-  echo "Adding newly-generated organization encryption recovery key to LUKS slot 2. Script will fail if unsuccessful.." >>$combined_log_path
-  cryptsetup luksAddKey -S 2 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./key_to_backup >>$combined_log_path || exit 1
-  echo "Successfully wrote encryption recovery key to LUKS slot 2. Proceeding.. " >>$combined_log_path
+  echo "Adding newly-generated organization encryption recovery key to LUKS slot 2. Script will fail if unsuccessful.." &>>$combined_log_path
+  cryptsetup luksAddKey -S 2 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./key_to_backup &>>$combined_log_path || exit 1
+  echo "Successfully wrote encryption recovery key to LUKS slot 2. Proceeding.. " &>>$combined_log_path
 
-  echo "Now that we've written a TPM key to LUKS, use this same backup key to remove old intial-setup keys from LUKS slot 0.." >> $combined_log_path
+  echo "Now that we've written a TPM key to LUKS, use this same backup key to remove old intial-setup keys from LUKS slot 0.." &>> $combined_log_path
   cat /dev/urandom | tr -dc '[:alnum:]' | head -c 30 > ./slot_0_overwrite_key
 
   echo "Overwriting keyslot 0.." &>> $combined_log_path
-  cryptsetup luksChangeKey -S 0 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./slot_0_overwrite_key >> $combined_log_path || exit 1
-  echo "Successfully overwrote LUKS key slot 0 (Key that was used during initial Linux OS installation.)" >> $combined_log_path
+  cryptsetup luksChangeKey -S 0 --key-file ./current_passphrase /dev/${luks_encrypted_volumes} ./slot_0_overwrite_key &>> $combined_log_path || exit 1
+  echo "Successfully overwrote LUKS key slot 0 (Key that was used during initial Linux OS installation.)" &>> $combined_log_path
 
 else
 
-  echo "Erasing previous TPM key Clevis metadata and deleting TPM recovery key to free it up for a new key. Script will fail out if this is not successful.." >>$combined_log_path
+  echo "Erasing previous TPM key Clevis metadata and deleting TPM recovery key to free it up for a new key. Script will fail out if this is not successful.." &>>$combined_log_path
   # wipe associated clevis token metadata so you do not use unnecessary space and eventually exceed 10 header slots
   clevis luks unbind -d /dev/${luks_encrypted_volumes} -s 3 -f || exit 1
 
-  echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" >>$combined_log_path
+  echo "Binding newly generated encryption key to the TPM using LUKS slot 3. Script will fail out if this is not successful" &>>$combined_log_path
   clevis luks bind -s 3 -k ./current_passphrase -d "/dev/${luks_encrypted_volumes}" tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,8"}' || exit 1
 
-  echo "Now that we've written a TPM key to LUKS, use this same backup key to rotate the previous Automox recovery key.." >>$combined_log_path
-  echo "Rotate keyslot 2 with newly-generated organization encryption recovery key. Script will fail if unsuccessful.." >>$combined_log_path
-  cryptsetup luksChangeKey -S 2 --key-file current_passphrase /dev/${luks_encrypted_volumes} ./key_to_backup >>$combined_log_path || exit 1
-  echo "Successfully reset key slot 2 with new recovery key. Proceeding.." >>$combined_log_path
+  echo "Now that we've written a TPM key to LUKS, use this same backup key to rotate the previous Automox recovery key.." &>>$combined_log_path
+  echo "Rotate keyslot 2 with newly-generated organization encryption recovery key. Script will fail if unsuccessful.." &>>$combined_log_path
+  cryptsetup luksChangeKey -S 2 --key-file current_passphrase /dev/${luks_encrypted_volumes} ./key_to_backup &>>$combined_log_path || exit 1
+  echo "Successfully reset key slot 2 with new recovery key. Proceeding.." &>>$combined_log_path
 
 fi
 
@@ -505,18 +505,18 @@ echo "Overwriting unused keyslots.." &>> $combined_log_path
 overwrite_unused_keyslots
 
 # For debugging
-# echo "Double check that the key from the file matches the output of what you just stored in clevis:" >> $combined_log_path
+# echo "Double check that the key from the file matches the output of what you just stored in clevis:" &>> $combined_log_path
 # clevis decrypt < clevis_secret.jwe
-# echo "Should match the root key file:" >> $combined_log_path
+# echo "Should match the root key file:" &>> $combined_log_path
 # cat tpm_key
 
 # not sure if unliking is necessary
-unlink current_passphrase >>$combined_log_path
+unlink current_passphrase &>>$combined_log_path
 
 # clean up passphrase file if still there
-echo "Deleting the current passphrase file remnant. Script will exit if unsuccessful.." >>$combined_log_path
+echo "Deleting the current passphrase file remnant. Script will exit if unsuccessful.." &>>$combined_log_path
 rm -rf ./current_passphrase || exit 1
 
-echo "Script complete. Exiting." >>$combined_log_path
+echo "Script complete. Exiting." &>>$combined_log_path
 
 ############################################################################################## End script work
